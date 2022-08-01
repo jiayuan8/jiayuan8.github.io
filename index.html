@@ -27,7 +27,7 @@
     <!-- Graph Placeholder -->
     <div id="graph_div_3"></div>
 
-    <script> 
+    <script>
         const svg_width = 1000
         const svg_height = 500
         const margin_left = 50
@@ -80,8 +80,8 @@
             make_unique = [...new Set(raw_data.map(d => { return d.Make }))]
             data_make = calculateBrandState(make_unique, raw_data)
             data.sort((a, b) => (parseInt(a.EngineCylinders) > parseInt(b.EngineCylinders)) ? 1 : -1)
-            data_make.sort((a, b) => (parseFloat(a.AverageCityMPG) < parseFloat(b.AverageCityMPG)) ? 1 : -1)
-            
+            data_make.sort((a, b) => (parseFloat(a.AverageEngineCylinders) > parseFloat(b.AverageEngineCylinders)) ? 1 : -1)
+
             document.getElementById("chart-header").innerHTML = "Number of Cylinders v.s. Average City MPG"
 
             annotations = [
@@ -144,7 +144,7 @@
                         dy: 50,
                         dx: 200
                     }
-                ], 
+                ],
                 [
                     {
                         note: {
@@ -189,15 +189,15 @@
                 .attr("height", svg_height + 150)
                 .append("g")
                 .attr("transform", "translate(" + margin_left + "," + margin_top + ")");
-            
+
             // x-axis 
             x_scaler = d3.scaleLinear()
                 .domain([0, 120])
                 .range([0, svg_width]);
             svg.append("g")
-                .attr("transform","translate(50,50)")
+                .attr("transform", "translate(50,50)")
                 .call(d3.axisTop(x_scaler).tickFormat(d3.format("~s")));
-            
+
             d3.select("svg").append("text")
                 .attr("text-anchor", "end")
                 .attr("x", 700)
@@ -205,15 +205,15 @@
                 .style('fill', 'Black')
                 .style('font-weight', 'bold')
                 .text("Average City MPG")
-            
+
 
             // y-axis 
             y_scaler = d3.scaleBand()
                 .domain([0, 1, 2, 3, 4, 5, 6, 7])
                 .range([0, svg_height]);
             svg.append("g")
-                .attr("transform","translate(50,50)")
-                .call(d3.axisLeft(y_scaler).tickFormat((d, i) => {return parseInt(data[i].EngineCylinders)}))
+                .attr("transform", "translate(50,50)")
+                .call(d3.axisLeft(y_scaler).tickFormat((d, i) => { return parseInt(data[i].EngineCylinders) }))
 
             d3.select("svg").append("text")
                 .attr("text-anchor", "end")
@@ -223,7 +223,7 @@
                 .style('font-weight', 'bold')
                 .attr("transform", "rotate(-90)")
                 .text("Number of Engine Cylinders");
-            
+
 
             console.log(data)
 
@@ -232,16 +232,16 @@
                 .style("opacity", 0)
                 .style("position", "absolute")
                 .style("background", "orange")
-            
+
             // draw plot for scene 1
             svg.selectAll('rect')
                 .data([0, 1, 2, 3, 4, 5, 6, 7])
                 .enter()
                 .append('rect')
-                .attr('y', (d, i) => {return y_scaler(i) + 60})
+                .attr('y', (d, i) => { return y_scaler(i) + 60 })
                 .attr('x', 50)
                 .attr('height', y_scaler.bandwidth() - 20)
-                .attr('width',(d, i) => {return x_scaler(data[d].AverageCityMPG);})
+                .attr('width', (d, i) => { return x_scaler(data[d].AverageCityMPG); })
                 .attr('fill', 'dodgerblue')
                 .on("mouseover", (event, d) => {
 
@@ -252,11 +252,11 @@
                     console.log(d, data[d].AverageCityMPG, (event.screenX) + "px")
 
                     tooltip.html(
-                            "Car Count: " + data[d].CarCount
-                            + "<br/>Average City MPG: " + data[d].AverageCityMPG
-                        )
-                    .style("left", (event.screenX) + "px")
-                    .style("top", (event.screenY - 120) + "px");
+                        "Car Count: " + data[d].CarCount
+                        + "<br/>Average City MPG: " + data[d].AverageCityMPG
+                    )
+                        .style("left", (event.screenX) + "px")
+                        .style("top", (event.screenY - 120) + "px");
                 })
                 .on("mouseout", (d) => {
 
@@ -272,7 +272,7 @@
                 .append("g")
                 .attr("class", "annotation-group")
                 .call(makeAnnotations)
-            
+
             /***********************************************/
             /******************* scene 2 *******************/
             /***********************************************/
@@ -288,9 +288,9 @@
                 .domain([0, 120])
                 .range([0, svg_width]);
             svg.append("g")
-                .attr("transform","translate(50,50)")
+                .attr("transform", "translate(50,50)")
                 .call(d3.axisTop(x_scaler).tickFormat(d3.format("~s")));
-            
+
             svg.append("text")
                 .attr("text-anchor", "end")
                 .attr("x", 700)
@@ -298,15 +298,15 @@
                 .style('fill', 'Black')
                 .style('font-weight', 'bold')
                 .text("Average Highway MPG")
-            
+
 
             // y-axis 
             y_scaler = d3.scaleBand()
                 .domain([0, 1, 2, 3, 4, 5, 6, 7])
                 .range([0, svg_height]);
             svg.append("g")
-                .attr("transform","translate(50,50)")
-                .call(d3.axisLeft(y_scaler).tickFormat((d, i) => {return parseInt(data[i].EngineCylinders)}))
+                .attr("transform", "translate(50,50)")
+                .call(d3.axisLeft(y_scaler).tickFormat((d, i) => { return parseInt(data[i].EngineCylinders) }))
 
             svg.append("text")
                 .attr("text-anchor", "end")
@@ -322,10 +322,10 @@
                 .data([0, 1, 2, 3, 4, 5, 6, 7])
                 .enter()
                 .append('rect')
-                .attr('y', (d, i) => {return y_scaler(i) + 60})
+                .attr('y', (d, i) => { return y_scaler(i) + 60 })
                 .attr('x', 50)
                 .attr('height', y_scaler.bandwidth() - 20)
-                .attr('width',(d, i) => {return x_scaler(data[d].AverageHighwayMPG);})
+                .attr('width', (d, i) => { return x_scaler(data[d].AverageHighwayMPG); })
                 .attr('fill', 'lightblue')
                 .on("mouseover", (event, d) => {
 
@@ -336,11 +336,11 @@
                     console.log(d, data[d].AverageHighwayMPG, (event.screenX) + "px")
 
                     tooltip.html(
-                            "Car Count: " + data[d].CarCount
-                            + "<br/>Average City MPG: " + data[d].AverageHighwayMPG
-                        )
-                    .style("left", (event.screenX) + "px")
-                    .style("top", (event.screenY - 120) + "px");
+                        "Car Count: " + data[d].CarCount
+                        + "<br/>Average City MPG: " + data[d].AverageHighwayMPG
+                    )
+                        .style("left", (event.screenX) + "px")
+                        .style("top", (event.screenY - 120) + "px");
                 })
                 .on("mouseout", (d) => {
 
@@ -349,7 +349,7 @@
                         .duration(100)
                         .style("opacity", 0);
                 })
-            
+
             // annotation for scene 2
             makeAnnotations = d3.annotation().annotations(annotations[1]);
             d3.select("#graph_div_2")
@@ -373,9 +373,9 @@
                 .domain([0, 100])
                 .range([0, svg_width]);
             svg.append("g")
-                .attr("transform","translate(50,50)")
+                .attr("transform", "translate(50,50)")
                 .call(d3.axisTop(x_scaler).tickFormat(d3.format("~s")));
-            
+
             svg.append("text")
                 .attr("text-anchor", "end")
                 .attr("x", 700)
@@ -389,8 +389,8 @@
                 .domain([...Array(44).keys()])
                 .range([0, svg_height]);
             svg.append("g")
-                .attr("transform","translate(50,50)")
-                .call(d3.axisLeft(y_scaler).tickFormat((d, i) => {return data_make[i].Make}))
+                .attr("transform", "translate(50,50)")
+                .call(d3.axisLeft(y_scaler).tickFormat((d, i) => { return data_make[i].Make }))
 
             svg.append("text")
                 .attr("text-anchor", "end")
@@ -406,10 +406,10 @@
                 .data([...Array(44).keys()])
                 .enter()
                 .append('rect')
-                .attr('y', (d, i) => {return y_scaler(i) + 50})
+                .attr('y', (d, i) => { return y_scaler(i) + 50 })
                 .attr('x', 50)
                 .attr('height', y_scaler.bandwidth())
-                .attr('width',(d, i) => {return x_scaler(data_make[d].AverageCityMPG);})
+                .attr('width', (d, i) => { return x_scaler(data_make[d].AverageCityMPG); })
                 .attr('fill', '#03e8fc')
                 .on("mouseover", (event, d) => {
 
@@ -420,12 +420,12 @@
                     console.log(d, data_make[d].AverageHighwayMPG, (event.screenX) + "px")
 
                     tooltip.html(
-                            "Car Count: " + data_make[d].CarCount
-                            + "<br/>Average City MPG: " + data_make[d].AverageCityMPG
-                            + "<br/>Average Cylinder: " + data_make[d].AverageEngineCylinders
-                        )
-                    .style("left", (event.screenX) + "px")
-                    .style("top", (event.screenY - 120) + "px");
+                        "Car Count: " + data_make[d].CarCount
+                        + "<br/>Average City MPG: " + data_make[d].AverageCityMPG
+                        + "<br/>Average Cylinder: " + data_make[d].AverageEngineCylinders
+                    )
+                        .style("left", (event.screenX) + "px")
+                        .style("top", (event.screenY - 120) + "px");
                 })
                 .on("mouseout", (d) => {
 
@@ -441,7 +441,7 @@
                 .select("svg")
                 .append("g")
                 .attr("class", "annotation-group").call(makeAnnotations)
-            
+
             // load the first scene by default
             loadScene1()
         }
