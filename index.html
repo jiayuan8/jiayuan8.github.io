@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+
+<head>
+    <title>Narrative Visualization</title>
+</head>
+
+<body onload="loadPage()">
+    <script src="https://d3js.org/d3.v6.js"></script>
+    <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+    <h1 id="chart-header"></h1>
+    <div id="scene-selection">
+        <button onclick="loadScene1()">Scene 1</button>
+        <button onclick="loadScene2()">Scene 2</button>
+        <button onclick="loadScene3()">Scene 3</button>
+    </div>
+    <div id="current-scene">
+        Current Scene: Scene 1
+    </div>
+    <!-- Graph Placeholder -->
+    <div id="graph_div"></div>
+
+    <!-- Graph Placeholder -->
+    <div id="graph_div_2"></div>
+
+    <!-- Graph Placeholder -->
+    <div id="graph_div_3"></div>
+
+    <script> 
+        const svg_width = 1000
+        const svg_height = 500
+        const margin_left = 50
+        const margin_right = 50
+        const margin_top = 50
+        const margin_bottom = 50
+
+        function calculateCylinderStat(cylinders_unique, data) {
+            cylinder_statistic = cylinders_unique.map(c => {
+                cylinders_data = data.filter(d => { return d.EngineCylinders == c; })
+                aveAverageCityMPG = d3.mean(cylinders_data.map(d => { return d.AverageCityMPG }))
+                aveAverageHighwayMPG = d3.mean(cylinders_data.map(d => { return d.AverageHighwayMPG }))
+                car_count = d3.count(cylinders_data.map(d => { return d.AverageCityMPG }))
+
+                return {
+                    EngineCylinders: parseInt(c),
+                    AverageCityMPG: parseFloat(aveAverageCityMPG),
+                    AverageHighwayMPG: parseFloat(aveAverageHighwayMPG),
+                    CarCount: parseInt(car_count),
+                };
+            });
+
+            return cylinder_statistic;
+        }
+
+        function calculateBrandState(unique_make, data) {
+            make_statistic = unique_make.map(c => {
+                make_data = data.filter(d => { return d.Make == c; })
+                aveAverageCityMPG = d3.mean(make_data.map(d => { return d.AverageCityMPG }))
+                aveCylender = d3.mean(make_data.map(d => { return d.EngineCylinders }))
+                car_count = d3.count(make_data.map(d => { return d.AverageCityMPG }))
+
+                return {
+                    Make: c,
+                    AverageCityMPG: parseFloat(aveAverageCityMPG),
+                    AverageEngineCylinders: parseFloat(aveCylender),
+                    CarCount: parseInt(car_count),
+                };
+            });
+
+            return make_statistic;
+        }
+
+        async function loadPage() {
+
+
+            raw_data = await d3.csv('https://flunky.github.io/cars2017.csv')
+            cylinders_unique = [...new Set(raw_data.map(d => { return d.EngineCylinders }))]
+            data = calculateCylinderStat(cylinders_unique, raw_data)
+            make_unique = [...new Set(raw_data.map(d => { return d.Make }))]
+            data_make = calculateBrandState(make_unique, raw_data)
+            data.sort((a, b) => (parseInt(a.EngineCylinders) > parseInt(b.EngineCylinders)) ? 1 : -1)
+            data_make.sort((a, b) => (parseFloat(a.AverageCityMPG) < parseFloat(b.AverageCityMPG)) ? 1 : -1)
+            
+            document.getElementById("chart-header").innerHTML = "Number of Cylinders v.s. Average City MPG"
+
+            annotations = [
+                [
+                    {
+                        note: {
+                            title: "High Efficiency",
+                            label: "Electrical Cars (with 0 cylinders) has the highest efficiency",
+                            wrap: 400
+                        },
+                        x: 500,
+                        y: 130,
+                        dy: 50,
+                        dx: 50
+                    },
+                    {
+                        note: {
+                            title: "Downward Trend",
+                            label: "As cylinders increases, fuel efficiency decreases",
+                            wrap: 400
+                        },
+                        x: 250,
+                        y: 600,
+                        dy: -200,
+                        dx: 100
+                    }
+                ],
+                [
+                    {
+                        note: {
+                            title: "High Efficiency",
+                            label: "Electrical Cars (with 0 cylinders) has the highest efficiency",
+                            wrap: 400
+                        },
+                        x: 500,
+                        y: 130,
+                        dy: 50,
+                        dx: 50
+                    },
+                    {
+                        note: {
+                            title: "Downward Trend",
+                            label: "As cylinders increases, fuel efficiency decreases",
+                            wrap: 400
+                        },
+                        x: 250,
+                        y: 600,
+                        dy: -200,
+                        dx: 100
+                    },
+                    {
+                        type: d3.annotationCalloutCircle,
+                        note: {
+                            title: "Small Sample Deviation",
+                            label: "Deviation from the trend could possibly caused by small sample size in the category",
+                            wrap: 400
+                        },
+                        x: 250,
+                        y: 195,
+                        dy: 50,
+                        dx: 200
+                    }
+                ], 
+                [
+                    {
+                        note: {
+                            title: "Tesla",
+                            label: "Electrical Cars (with 0 cylinders) has the highest efficiency",
+                            wrap: 400
+                        },
+                        x: 500,
+                        y: 105,
+                        dy: 50,
+                        dx: 50
+                    },
+                    {
+                        note: {
+                            title: "Downward Trend",
+                            label: "We can see the fuel efficiency decreases as the type of car manufacurers becoming more and more sport-oriented and luxury",
+                            wrap: 400
+                        },
+                        x: 300,
+                        y: 500,
+                        dy: -200,
+                        dx: 100
+                    },
+                    {
+                        type: d3.annotationCalloutCircle,
+                        note: {
+                            title: "Racing / Luxury Cars",
+                            label: "These region has several racing/luxury car manufacturers whose products has more than 10 average engine cylinders and very low fuel efficiency",
+                            wrap: 400
+                        },
+                        x: 250,
+                        y: 580,
+                        dy: -50,
+                        dx: 200
+                    }
+                ]
+            ]
+
+            var svg = d3.select("#graph_div")
+                .append("svg")
+                .attr("width", svg_width + 150)
+                .attr("height", svg_height + 150)
+                .append("g")
+                .attr("transform", "translate(" + margin_left + "," + margin_top + ")");
+            
+            // x-axis 
+            x_scaler = d3.scaleLinear()
+                .domain([0, 120])
+                .range([0, svg_width]);
+            svg.append("g")
+                .attr("transform","translate(50,50)")
+                .call(d3.axisTop(x_scaler).tickFormat(d3.format("~s")));
+            
+            d3.select("svg").append("text")
+                .attr("text-anchor", "end")
+                .attr("x", 700)
+                .attr("y", 70)
+                .style('fill', 'Black')
+                .style('font-weight', 'bold')
+                .text("Average City MPG")
+            
+
+            // y-axis 
+            y_scaler = d3.scaleBand()
+                .domain([0, 1, 2, 3, 4, 5, 6, 7])
+                .range([0, svg_height]);
+            svg.append("g")
+                .attr("transform","translate(50,50)")
+                .call(d3.axisLeft(y_scaler).tickFormat((d, i) => {return parseInt(data[i].EngineCylinders)}))
+
+            d3.select("svg").append("text")
+                .attr("text-anchor", "end")
+                .attr("x", -200)
+                .attr("y", 60)
+                .style('fill', 'Black')
+                .style('font-weight', 'bold')
+                .attr("transform", "rotate(-90)")
+                .text("Number of Engine Cylinders");
+            
+
+            console.log(data)
+
+            tooltip = d3.select("body").append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0)
+                .style("position", "absolute")
+                .style("background", "orange")
+            
+            // draw plot for scene 1
+            svg.selectAll('rect')
+                .data([0, 1, 2, 3, 4, 5, 6, 7])
+                .enter()
+                .append('rect')
+                .attr('y', (d, i) => {return y_scaler(i) + 60})
+                .attr('x', 50)
+                .attr('height', y_scaler.bandwidth() - 20)
+                .attr('width',(d, i) => {return x_scaler(data[d].AverageCityMPG);})
+                .attr('fill', 'dodgerblue')
+                .on("mouseover", (event, d) => {
+
+                    tooltip.transition()
+                        .duration(100)
+                        .style("opacity", 0.9);
+
+                    console.log(d, data[d].AverageCityMPG, (event.screenX) + "px")
+
+                    tooltip.html(
+                            "Car Count: " + data[d].CarCount
+                            + "<br/>Average City MPG: " + data[d].AverageCityMPG
+                        )
+                    .style("left", (event.screenX) + "px")
+                    .style("top", (event.screenY - 120) + "px");
+                })
+                .on("mouseout", (d) => {
+
+                    tooltip
+                        .transition()
+                        .duration(100)
+                        .style("opacity", 0);
+                })
+
+            // annotation for scene 1
+            makeAnnotations = d3.annotation().annotations(annotations[0]);
+            d3.select("svg")
+                .append("g")
+                .attr("class", "annotation-group")
+                .call(makeAnnotations)
+            
+            /***********************************************/
+            /******************* scene 2 *******************/
+            /***********************************************/
+            svg = d3.select("#graph_div_2")
+                .append("svg")
+                .attr("width", svg_width + 150)
+                .attr("height", svg_height + 150)
+                .append("g")
+                .attr("transform", "translate(" + margin_left + "," + margin_top + ")");
+
+            // x-axis 
+            x_scaler = d3.scaleLinear()
+                .domain([0, 120])
+                .range([0, svg_width]);
+            svg.append("g")
+                .attr("transform","translate(50,50)")
+                .call(d3.axisTop(x_scaler).tickFormat(d3.format("~s")));
+            
+            svg.append("text")
+                .attr("text-anchor", "end")
+                .attr("x", 700)
+                .attr("y", 0)
+                .style('fill', 'Black')
+                .style('font-weight', 'bold')
+                .text("Average Highway MPG")
+            
+
+            // y-axis 
+            y_scaler = d3.scaleBand()
+                .domain([0, 1, 2, 3, 4, 5, 6, 7])
+                .range([0, svg_height]);
+            svg.append("g")
+                .attr("transform","translate(50,50)")
+                .call(d3.axisLeft(y_scaler).tickFormat((d, i) => {return parseInt(data[i].EngineCylinders)}))
+
+            svg.append("text")
+                .attr("text-anchor", "end")
+                .attr("x", -200)
+                .attr("y", 20)
+                .style('fill', 'Black')
+                .style('font-weight', 'bold')
+                .attr("transform", "rotate(-90)")
+                .text("Number of Engine Cylinders");
+
+            // draw plot for scene 2
+            svg.selectAll('rect')
+                .data([0, 1, 2, 3, 4, 5, 6, 7])
+                .enter()
+                .append('rect')
+                .attr('y', (d, i) => {return y_scaler(i) + 60})
+                .attr('x', 50)
+                .attr('height', y_scaler.bandwidth() - 20)
+                .attr('width',(d, i) => {return x_scaler(data[d].AverageHighwayMPG);})
+                .attr('fill', 'lightblue')
+                .on("mouseover", (event, d) => {
+
+                    tooltip.transition()
+                        .duration(100)
+                        .style("opacity", 0.9);
+
+                    console.log(d, data[d].AverageHighwayMPG, (event.screenX) + "px")
+
+                    tooltip.html(
+                            "Car Count: " + data[d].CarCount
+                            + "<br/>Average City MPG: " + data[d].AverageHighwayMPG
+                        )
+                    .style("left", (event.screenX) + "px")
+                    .style("top", (event.screenY - 120) + "px");
+                })
+                .on("mouseout", (d) => {
+
+                    tooltip
+                        .transition()
+                        .duration(100)
+                        .style("opacity", 0);
+                })
+            
+            // annotation for scene 2
+            makeAnnotations = d3.annotation().annotations(annotations[1]);
+            d3.select("#graph_div_2")
+                .select("svg")
+                .append("g")
+                .attr("class", "annotation-group").call(makeAnnotations)
+
+            /***********************************************/
+            /******************* scene 3 *******************/
+            /***********************************************/
+
+            svg = d3.select("#graph_div_3")
+                .append("svg")
+                .attr("width", svg_width + 250)
+                .attr("height", svg_height + 150)
+                .append("g")
+                .attr("transform", "translate(" + 100 + "," + margin_top + ")")
+
+            // x-axis 
+            x_scaler = d3.scaleLinear()
+                .domain([0, 100])
+                .range([0, svg_width]);
+            svg.append("g")
+                .attr("transform","translate(50,50)")
+                .call(d3.axisTop(x_scaler).tickFormat(d3.format("~s")));
+            
+            svg.append("text")
+                .attr("text-anchor", "end")
+                .attr("x", 700)
+                .attr("y", 0)
+                .style('fill', 'Black')
+                .style('font-weight', 'bold')
+                .text("Average Highway MPG")
+
+            // y-axis 
+            y_scaler = d3.scaleBand()
+                .domain([...Array(44).keys()])
+                .range([0, svg_height]);
+            svg.append("g")
+                .attr("transform","translate(50,50)")
+                .call(d3.axisLeft(y_scaler).tickFormat((d, i) => {return data_make[i].Make}))
+
+            svg.append("text")
+                .attr("text-anchor", "end")
+                .attr("x", -200)
+                .attr("y", -20)
+                .style('fill', 'Black')
+                .style('font-weight', 'bold')
+                .attr("transform", "rotate(-90)")
+                .text("Car Manufacturer");
+
+            // draw plot for scene 3
+            svg.selectAll('rect')
+                .data([...Array(44).keys()])
+                .enter()
+                .append('rect')
+                .attr('y', (d, i) => {return y_scaler(i) + 50})
+                .attr('x', 50)
+                .attr('height', y_scaler.bandwidth())
+                .attr('width',(d, i) => {return x_scaler(data_make[d].AverageCityMPG);})
+                .attr('fill', '#03e8fc')
+                .on("mouseover", (event, d) => {
+
+                    tooltip.transition()
+                        .duration(100)
+                        .style("opacity", 0.9);
+
+                    console.log(d, data_make[d].AverageHighwayMPG, (event.screenX) + "px")
+
+                    tooltip.html(
+                            "Car Count: " + data_make[d].CarCount
+                            + "<br/>Average City MPG: " + data_make[d].AverageCityMPG
+                            + "<br/>Average Cylinder: " + data_make[d].AverageEngineCylinders
+                        )
+                    .style("left", (event.screenX) + "px")
+                    .style("top", (event.screenY - 120) + "px");
+                })
+                .on("mouseout", (d) => {
+
+                    tooltip
+                        .transition()
+                        .duration(100)
+                        .style("opacity", 0);
+                })
+
+            // annotation for scene 3
+            makeAnnotations = d3.annotation().annotations(annotations[2]);
+            d3.select("#graph_div_3")
+                .select("svg")
+                .append("g")
+                .attr("class", "annotation-group").call(makeAnnotations)
+            
+            // load the first scene by default
+            loadScene1()
+        }
+
+        async function loadScene1() {
+            document.getElementById("chart-header").innerHTML = "Number of Cylinders v.s. Average City MPG"
+            document.getElementById("current-scene").innerHTML = 'Current Scene: Scene 1'
+            document.getElementById("graph_div_2").style.display = 'none'
+            document.getElementById("graph_div_3").style.display = 'none'
+            document.getElementById("graph_div").style.display = 'block'
+        }
+
+        async function loadScene2() {
+            document.getElementById("chart-header").innerHTML = "Number of Cylinders v.s. Average Highway MPG"
+            document.getElementById("current-scene").innerHTML = 'Current Scene: Scene 2'
+            document.getElementById("graph_div").style.display = 'none'
+            document.getElementById("graph_div_3").style.display = 'none'
+            document.getElementById("graph_div_2").style.display = 'block'
+        }
+
+        async function loadScene3() {
+            document.getElementById("chart-header").innerHTML = "Car Manufacturer v.s. Average Highway MPG"
+            document.getElementById("current-scene").innerHTML = 'Current Scene: Scene 3'
+            document.getElementById("graph_div").style.display = 'none'
+            document.getElementById("graph_div_2").style.display = 'none'
+            document.getElementById("graph_div_3").style.display = 'block'
+        }
+    </script>
+</body>
